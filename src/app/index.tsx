@@ -1,98 +1,155 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, TextInput, TouchableOpacity, View, ScrollView, Pressable, Image } from "react-native";
+import styles from "./styles";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+// ---------- Types ----------
+type ShortcutItem = {
+  id: string;
+  label: string;
+  letter: string;
+  color: string;
+};
+ 
+type PillButtonProps = {
+  icon: React.ReactNode;
+  label: string;
+};
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+// ---------- Data ----------
+const shortcuts: ShortcutItem[] = [
+  { id: "1", label: "animepahe", letter: "A", color: "#e74c3c" },
+  { id: "2", label: "ChatGPT", letter: "C", color: "#ffffff" },
+  { id: "3", label: "Google", letter: "G", color: "#4285F4" },
+  { id: "4", label: "DeepSeek", letter: "D", color: "#4d6bfe" },
+];
+ 
+const news = {
+  title: "Tinubu departs Saudi Arabia after lesser hajj",
+  source: "TheCable",
+  time: "3h",
+  thumbnail: "https://picsum.photos/200/200",
+  image: "https://picsum.photos/600/350",
+};
+ 
+// ---------- Small reusable components ----------
+function Shortcut({ label, letter, color }: ShortcutItem) {
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+    <TouchableOpacity style={styles.shortcut}>
+      <View style={styles.shortcutCircle}>
+        <Text style={[styles.shortcutLetter, { color }]}>{letter}</Text>
+      </View>
+      <Text style={styles.shortcutLabel} numberOfLines={1}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+ 
+function PillButton({ icon, label }: PillButtonProps) {
+  return (
+    <TouchableOpacity style={styles.pill}>
+      {icon}
+      <Text style={styles.pillText}>{label}</Text>
+    </TouchableOpacity>
   );
 }
 
-export default function HomeScreen() {
+
+export default function Index() {
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scroll}>
+        {/* 1. Logo */}
+        <Text style={styles.logo}>Google</Text>
+ 
+        {/* 2. Search bar */}
+        <View style={styles.searchBar}>
+          <Ionicons name="logo-google" size={24} color="#4285F4" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search Google or type URL"
+            placeholderTextColor="#c4c7c5"
           />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
+          <Ionicons name="mic" size={24} color="#e3e3e3" />
+        </View>
+ 
+        {/* 3. AI Mode + Incognito buttons */}
+        <View style={styles.pillRow}>
+          <PillButton
+            icon={
+              <MaterialCommunityIcons
+                name="star-four-points-outline"
+                size={20}
+                color="#e3e3e3"
+              />
+            }
+            label="AI Mode"
           />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+          <PillButton
+            icon={
+              <MaterialCommunityIcons name="incognito" size={20} color="#e3e3e3" />
+            }
+            label="Incognito"
+          />
+        </View>
+ 
+        {/* 4. Shortcuts card */}
+        <View style={styles.card}>
+          <View style={styles.shortcutRow}>
+            {shortcuts.map((item) => (
+              <Shortcut key={item.id} {...item} />
+            ))}
+          </View>
+        </View>
+ 
+        {/* 5. News card */}
+        <View style={styles.card}>
+          <View style={styles.newsTop}>
+            <Text style={styles.newsTitle}>{news.title}</Text>
+            <Image source={{ uri: news.thumbnail }} style={styles.thumbnail} />
+          </View>
+ 
+          <View style={styles.newsMeta}>
+            <View style={styles.row}>
+              <View style={styles.sourceIcon} />
+              <Text style={styles.sourceText}>
+                {news.source} · {news.time}
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Ionicons
+                name="share-social-outline"
+                size={20}
+                color="#e3e3e3"
+                style={{ marginRight: 20 }}
+              />
+              <Ionicons name="ellipsis-vertical" size={20} color="#e3e3e3" />
+            </View>
+          </View>
+        </View>
+ 
+        {/* 6. Big image */}
+        <Image source={{ uri: news.image }} style={styles.bigImage} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
-});
+
+type setProps = {
+  name: string,
+  age?: number
+}
+
+function Card(props:setProps){
+  return(
+    <Text>That {props.name}, is {props.age} years old</Text>
+  )
+}
+
+
+function Test2({name, age}:{name: string, age:number}){
+  return(
+    <Text>This {name}, is {age} years old</Text>
+  )
+}
